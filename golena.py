@@ -26,17 +26,19 @@ parser.add_argument('-s', '--save', action='store_true', dest='save', default=Fa
 parser.add_argument('-c', '--comp', '--compare', action='store_true', dest='compare', default=False, help='Compares fast and true eigenv\'s.')
 parser.add_argument('-d', '--debug', action='store_true', dest='debug', default=False, help='Prints debugging help.')
 parser.add_argument('--vis', action='store_true', dest='visual', default=False, help='Visualizes both true and fast eigenvectors. Dependendent on -c.i')
-parser.add_argument('im', type=str, help='The Image')
-parser.add_argument('sz1', type=int, help='Image size 1')
-parser.add_argument('sz2', type=int, help='Image size 2')
 parser.add_argument('-p', action='store_true', dest='pic', default=False, help='Show picture of fast eigenvectors.')
-
+parser.add_argument('--aff', type=str, dest='aff_npz', default='null', help='User imported affinity matrix')
+parser.add_argument('--blocksize', type=int, dest='blocksize', default=1, help='Blocksize for Sparse Matrix Multiplication.')
 values = parser.parse_args()
 global val
 val = values
 if val.debug: val.verbose = True
 cut = True
 if val.compare: cut = False
+
+config = {};
+blocksize = val.blocksize;
+config['spmult_blocksize']
 
 #Little code to save sparse csc matrices
 def save_sparse_csc(filename,array):
@@ -141,35 +143,41 @@ def main(im='lena.bmp', sz1=256, sz2=256):
 	nvec = 16
 	ndown = 2
 	
+	if val.aff_npz == 'null':
+
 	#Import image and resize
-	if val.verbose: print 'Importing and sizing image...'
+		if val.verbose: print 'Importing and sizing image...';
 
-	img = misc.imread(im)
-	img = misc.imresize(img, (sz1,sz2))
+		img = misc.imread(im)
+		img = misc.imresize(img, (sz1,sz2))
 
-	img = misc.imread(val.im)
-	img = misc.imresize(img, (val.sz1, val.sz2))
+		img = misc.imread(val.im)
+		img = misc.imresize(img, (val.sz1, val.sz2))
 
-	if val.verbose: print 'Image acquired'
+		if val.verbose: print 'Image acquired';
 	
 	#Get the pixel affinity matrix and save it
-	if val.verbose: timing.log('Constructing gaussian affinity matrix...')
-	A = getgauss(img, val)
-	if val.verbose: timing.log('Gaussian affinity matrix acquired')
-	if val.save: save_sparse_csc('affinity_lena256.npy', A)
+		if val.verbose: timing.log('Constructing gaussian affinity matrix...');
+		A = getgauss(img, val)
+		if val.verbose: timing.log('Gaussian affinity matrix acquired');
+		if val.save: save_sparse_csc('affinity_lena256.npy', A);
 	
 	#Loads matlab affinity matrix
-	#A = np.load('A_affinitymat.npy.npz')
-	#A = sp.csc_matrix((A['data'], (A['row'], A['col'])), shape=A['shape'])
-	if val.debug: print A.shape, A
+		#A = np.load('A_affinitymat.npy.npz')
+		#A = sp.csc_matrix((A['data'], (A['row'], A['col'])), shape=A['shape'])
+		if val.debug: print A.shape, A;
 	
-	#Graph the affinity matrix -- gets annoying when graphing real stuff...
-	#if val.graph:
-	#	if val.verbose: print 'Plotting affinity matrix...'
-	#	fig = plt.figure()
-	#	ax1 = fig.add_subplot(111)
-	#	ax1.spy(A.todense()
-	#	plt.show()
+	#Graph the affinity matrix -- gets annoying
+	"""if val.graph:
+		if val.verbose: print 'Plotting affinity matrix...'
+		fig = plt.figure()
+		ax1 = fig.add_subplot(111)
+		ax1.spy(A.todense()
+		plt.show()"""
+	
+	if val.aff_npz != 'null':
+		A = np.load(val.aff_npz);
+		A = sp.csc_matrix((A['data'], A['indices'], A['indptr']), shape=A['shape'])
 	
 #Get the eigens the user wants
 	if (val.ncut == True) and (val.compare==False):
@@ -259,4 +267,6 @@ def main(im='lena.bmp', sz1=256, sz2=256):
 #End of Main ====================================================================================================
 
 if __name__ == '__main__':
-	main(val.im, val.sz1, val.sz2)
+	if val.aff_npz == 'null':
+		main(val.im, val.sz1, val.sz2)
+	else: main();
