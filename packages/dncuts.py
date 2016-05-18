@@ -78,8 +78,6 @@ def sparse_multiply(a,b,n,val):
 			b_lower = (b.shape[1]//n)*j;
 			b_upper = (b.shape[1]//n)*(j+1);
 			if j == n-1: b_upper = b.shape[1];
-		
-			print b_lower, b_upper;
 
 			a_i = a[a_lower:a_upper];
 			b_i = b[:, b_lower:b_upper];
@@ -117,7 +115,7 @@ def sparse_multiply(a,b,n,val):
 				sub_ind = np.memmap('.memmapped/spmultiply/%i_%iindices.array' %(i,j), dtype='int64', mode='r+');
 				sub_data = np.memmap('.memmapped/spmultiply/%i_%idata.array' %(i,j), dtype='float64', mode='r+');
 				sub_indptr = np.memmap('.memmapped/spmultiply/%i_%iindptr.array' %(i,j), dtype='int64', mode='r+');
-				#print start, sub_data.shape, sub_indptr.shape, k, sub_indptr[k], sub_indptr[k+1];
+				
 				rowdata = sub_data[sub_indptr[k]:sub_indptr[k+1]];
 				rowind = sub_ind[sub_indptr[k]:sub_indptr[k+1]];
 				
