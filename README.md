@@ -39,4 +39,4 @@ where the file is a saved python dictionary with the keys: `data`,`indices`,`ind
 There are also a few flags you can use at runtime.
 
 ### Contact
-Email or submit and issue for questions.
+Email or submit an issue for questions.
