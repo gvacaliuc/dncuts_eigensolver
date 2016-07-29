@@ -176,7 +176,7 @@ def main(config):
         for i in range(len(filenames)):
            filenames[i] = config['name']+'_'+filenames[i];
 
-    for i in len(files):
+    for i in range(len(files)):
         np.save(os.path.join(saveDir, filenames[i]), files[i]);
         
 #Potential to call grapheigens
