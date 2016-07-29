@@ -1,0 +1,10 @@
+image: 'lena.bmp'
+size:
+    - 256
+    - 256
+numblock: 4
+n_eigv: 16
+saveDir: 'savefiles/'
+figDir: 'savefiles/figures'
+logfile: 'log.txt'
+name: 'lena'
