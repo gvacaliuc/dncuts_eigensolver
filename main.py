@@ -284,7 +284,7 @@ def validate(config):
         if not field in config:
             raise ValueError('You didn\'t provide a value for the field: {0}'.format(field));
 
-    directories = ['logfile', 'saveDir', 'figDir',];
+    directories = ['saveDir', 'figDir',];
     for directory in directories:
         if not os.path.isdir(config[directory]):
             os.makedirs(config[directory]);
