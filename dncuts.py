@@ -2,7 +2,6 @@ from __future__ import division
 import numpy as np
 from numpy import *
 from scipy.sparse.linalg import *
-import collections
 import scipy.sparse as sp
 from scipy.linalg import eig
 import matplotlib.pyplot as plt

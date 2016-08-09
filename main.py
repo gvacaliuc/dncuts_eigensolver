@@ -4,7 +4,6 @@ from scipy import misc, io
 from scipy import sparse as sp
 from dncuts import dncuts, ncuts
 import matplotlib.pyplot as plt
-import collections
 import argparse
 import scipy.sparse as sp
 import logging
@@ -162,14 +161,14 @@ def main(config):
 
     files = [];
 
-    fast_eig = dncuts(A, config);
-    files.append(fast_eig.ev);
-    files.append(fast_eig.evl);
+    feigv, feigval = dncuts(A, config);
+    files.append(feigv);
+    files.append(feigval);
     filenames = ['fast_eigv.npy', 'fast_eigval.npy'];
 
     if config['ncut'] or config['comp']:
-        true_eig = ncuts(A, config);
-        files.extend([true_eig.ev,true_eig.evl,]);
+        teigv, teigval = ncuts(A, config);
+        files.extend([teigv,teigval,]);
         filenames.extend(['real_eigv.npy', 'real_eigval.npy',]);
 
     if 'name' in config:
@@ -183,11 +182,11 @@ def main(config):
     if 'comp' in config and config['comp']:
         if 'graph' in config and config['graph']: 
             log.info('Comparison before eigenvector processing on first 10 Eigens...');
-            grapheigens(fast_eig.ev, fast_eig.evl, true_eig.ev, true_eig.evl, nvec=10);
+            grapheigens(feigv, feigval, teigv, teigval, nvec=10);
     #Eigenvector clean up (reordering, resigning...)
         log.info('Cleaning up Eigenvectors...');
-        EV_fast = fast_eig.ev
-        EV_true = true_eig.ev
+        EV_fast = feigv
+        EV_true = teigv
         C = np.abs(np.dot(EV_fast.T, EV_true))
         accuracy = np.trace(C)/nvec
         log.info('Accuracy of Eigenvector intially: {0}%'.format(accuracy*100));
@@ -212,12 +211,12 @@ def main(config):
         accuracy = np.trace(C)/nvec
         log.info('Accuracy of Eigenvector after processing: {0}%'.format(accuracy*100));
         np.save(os.path.join(saveDir, 'fast_processed_eigv.npy', EV_fast))
-        np.save(os.path.join(saveDir, 'fast_processed_eigval.npy', fast_eig.evl))
+        np.save(os.path.join(saveDir, 'fast_processed_eigval.npy', feigval))
         if 'graph' in config and config['graph']:
             log.info('Comparison after eigenvector processing...');
-            grapheigens(EV_fast, fast_eig.evl, true_eig.ev, true_eig.evl, nvec=10)
+            grapheigens(EV_fast, feigval, teigv, teigval, nvec=10)
         
-        visualize(EV_fast, EV_true, fast_eig.evl, img, nvec)
+        visualize(EV_fast, EV_true, feigval, img, nvec)
 
 #End of Main ====================================================================================================
 
