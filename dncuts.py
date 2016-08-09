@@ -258,7 +258,7 @@ def whiten(x):
 #===========================================================================
 # 'Normalized Cuts', finds k non-zero eigenvectors of matrix and normalizes.
 #===========================================================================
-def newncuts(A, k=16):
+def ncuts(A, k=16):
     assert( A.shape[0] == A.shape[1] );
     n = A.shape[0];
     offset = .5;    
