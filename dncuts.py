@@ -258,31 +258,36 @@ def whiten(x):
 #===========================================================================
 # 'Normalized Cuts', finds k non-zero eigenvectors of matrix and normalizes.
 #===========================================================================
-def ncuts(a_down, k=16):
-    log.info('Starting NCuts...');
-    a, b = a_down.shape
-    sm = np.array(a_down.sum(0)).flatten();
+def newncuts(A, k=16):
+    assert( A.shape[0] == A.shape[1] );
+    n = A.shape[0];
+    offset = .5;    
 
-    d = sp.diags(sm,0,format='csc');
+    d = np.array(A.sum(1) + 2*offset);
+    dr = sp.diags(np.ones(n)*offset,0,format='csc');
+    A = A + dr;
+    dsqinv = (1./ np.sqrt(d  + np.spacing(1))).flatten();
+
+    P = sp.diags(dsqinv, 0, format='csc').dot(A).dot(sp.diags(dsqinv, 0, format='csc'));
+
     nvec = k + 1
+
+    log.info('Solving for eigenvalues and eigenvectors...');
     
-    log.info('Solving for eigens...')
-    Eval, Ev = eigsh(a_down, k=nvec, M=d, sigma=0.0)
-    log.info('Solved for eigens!')
+    Eval, Ev = eigsh(P, k=nvec);
+
+    log.info('Solved!');
 
     #Sort vectors in descending order, leaving out the zero vector
     idx = np.argsort(-Eval)
-    Ev = Ev[:,idx[1:]].real
-    Eval = Eval[idx[1:]].real
+    Ev = Ev[:,idx].real
+    Eval = Eval[idx].real
     
     #Make vectors unit norm
     for i in range(k):
-        Ev[i] /= np.linalg.norm(Ev[i]);
+        Ev[:,i] /= np.linalg.norm(Ev[:,i]);
 
-    eigens = collections.namedtuple('eigens', ['ev','evl'])
-    eig = eigens(ev=Ev, evl=Eval)
-    log.info('Finished NCuts');
-    return eig;
+    return Eval, Ev;
 
 #   Small Helper function        
 def trunc(data, indices, indptr, n):
@@ -380,9 +385,7 @@ def dncuts(a, config, nvec=16, n_downsample=2, decimate=2):
 # Get the eigenvectors
     del a_sub, b;
     #save_sparse_csc('savefiles/a_down.npz',a_down);   #   Debugging help
-    cuteigs = ncuts(a_down, k=nvec)
-    Ev = cuteigs.ev
-    Eval = cuteigs.evl
+    Eval, Ev = ncuts(a_down, k=nvec)
 
     #np.save('eigenvectors.npy', Ev);   #   Debugging help
     #np.save('eigenvalues.npy', Eval);  #   Debugging help
@@ -411,7 +414,4 @@ def dncuts(a, config, nvec=16, n_downsample=2, decimate=2):
     Ev = whiten(Ev);
     log.info('Eigenvectors whitened')
     
-    eigens = collections.namedtuple('eigens', ['ev','evl'])
-    eig = eigens(ev=Ev.real, evl=Eval.real)
-    #print 'ev', Ev.shape   #   Debugging help
-    return eig
+    return Eval, Ev;
