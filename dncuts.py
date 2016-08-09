@@ -269,11 +269,9 @@ def ncuts(A, k=16):
 
     P = sp.diags(dsqinv, 0, format='csc').dot(A).dot(sp.diags(dsqinv, 0, format='csc'));
 
-    nvec = k + 1
-
     log.info('Solving for eigenvalues and eigenvectors...');
     
-    Eval, Ev = eigsh(P, k=nvec);
+    Eval, Ev = eigsh(P, k=k);
 
     log.info('Solved!');
 
@@ -318,14 +316,14 @@ def trunc_sp_matrix(a, n):
 #   'upsampled' normalized eigenvectors and 
 #   eigenvalues.
 #================================================
-def dncuts(a, config, nvec=16, n_downsample=2, decimate=2):
+def dncuts(a, config, n_downsample=2, decimate=2):
 
 # a = affinity matrix
 # nevc = number of eigenvectors (set to 16?)
 # n_downsample = number of downsampling operations (2 seems okay)
 # decimate = amount of decimation for each downsampling operation (set to 2)
     
-    
+    nvec = config['n_eigv'];
     a_down=sp.csc_matrix(a);
     n = np.abs(config['numblock']);        #    Blocks in sparse multiplication
     #   N needs to be divisible by 4 bc. of sparse multiplication.
