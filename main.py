@@ -140,6 +140,11 @@ def main(config):
     ndown = 2
     saveDir = config['saveDir'];
 
+    require = ['ncut','comp',];
+    for req in require:
+        if req not in config:
+            config[req] = False;
+
     if 'image' in config:
         #Import image and resize
         log.info('Importing and sizing {0}'.format(config['image']));
